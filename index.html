@@ -57,6 +57,7 @@ input.line-distance {
 				</tr>
 			</table>
 		</form>
+		<p>首尾偏差：<span id="error-value"></span> cm</p>
 	</div>
 </body>
 <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
@@ -186,6 +187,8 @@ function drawLines() {
 		var tPoint = pointTransform(points[i]);
 		document.getElementById('mysvg').appendChild(svgUtils.createPoint(tPoint));
 	}
+
+	$('#error-value').html(Math.pow(Math.pow(points[0].x - points[points.length-1].x, 2) * Math.pow(points[0].y - points[points.length-1].y, 2), 0.5));
 }
 </script>
 </html>
