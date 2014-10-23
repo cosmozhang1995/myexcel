@@ -188,7 +188,7 @@ function drawLines() {
 		document.getElementById('mysvg').appendChild(svgUtils.createPoint(tPoint));
 	}
 
-	$('#error-value').html(Math.pow(Math.pow(points[0].x - points[points.length-1].x, 2) * Math.pow(points[0].y - points[points.length-1].y, 2), 0.5));
+	$('#error-value').html(Math.pow(Math.pow(points[0].x - points[points.length-1].x, 2) + Math.pow(points[0].y - points[points.length-1].y, 2), 0.5));
 }
 </script>
 </html>
