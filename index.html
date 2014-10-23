@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Cotent-type" content="text/html; char-set=utf-8" />
+</head>
+<style type="text/css">
+body {
+	width: auto;
+	white-space: nowrap;
+	/*font-size: 0px;*/
+}
+.section {
+	display: inline-block;
+	font-size: medium;
+	vertical-align: top;
+}
+
+#mysvg {
+	border: 1px black solid;
+}
+#mysvg circle:hover {
+	display: none;
+}
+#mysvg line:active {
+	stroke:rgb(255, 128, 128);
+}
+
+
+table.data-browser > tr > td > * {
+	height: 20px;
+	line-height: 20px;
+	vertical-align: middle;
+	display: inline-block;
+	white-space: nowrap;
+}
+span.line-name {
+	width: 40px;
+}
+input.line-angel {
+	width: 60px;
+}
+input.line-distance {
+	width: 60px;
+}
+</style>
+<body>
+	<div class="section">
+		<svg id="mysvg" width="1000" height="1000" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+	</div>
+	<div class="section">
+		<form>
+			<table class="data-browser" id="data-browser">
+				<tr>
+					<th>路线</th>
+					<th>方位角</th>
+					<th>水平距离</th>
+				</tr>
+			</table>
+		</form>
+	</div>
+</body>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript">
+Array.prototype.findProperty = function(key, val) {
+	for (var i = 0; i < this.length; i++) {
+		if (this[i][key] === val) return this[i];
+	}
+	return null;
+}
+
+var MUTIPLIER = 40;
+var OFFSET = {x: 500, y:200};
+function pointTransform(point) {
+	return $.extend({}, point, {
+			x: point.x * MUTIPLIER + OFFSET.x,
+			y: point.y * MUTIPLIER + OFFSET.y
+		});
+}
+function pointDetransform(point) {
+	return $.extend({}, point, {
+			x: (point.x - OFFSET.x) / MUTIPLIER,
+			y: (point.y - OFFSET.y) / MUTIPLIER
+		});
+}
+
+var tpl = {
+	'point': '<circle cx="0" cy="0" r="2" stroke="black" stroke-width="1"/>',
+	'line': '<line x1="0" y1="0" x2="0" y2="0" style="stroke:rgb(99,99,99);stroke-width:2"/>',
+	'line-field': 
+		'<tr class="line-field" >\
+			<td><span class="line-name"></span></td>\
+			<td><input class="line-angel" type="number" /></td>\
+			<td><input class="line-distance" type="number" /></td>\
+		</tr>'
+};
+
+var svgUtils = {
+	createPoint: function(point) {
+		var node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+		node.setAttribute('id', 'point-' + point.name);
+		node.setAttribute('cx', point.x);
+		node.setAttribute('cy', point.y);
+		node.setAttribute('r', 2);
+		node.setAttribute('stroke', 'black');
+		node.setAttribute('stroke-width', '1');
+		return node;
+	},
+	createLine: function(line) {
+		var node = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		node.setAttribute('id', 'line-' + line.from.name + '-' + line.to.name);
+		node.setAttribute('x1', line.from.x);
+		node.setAttribute('y1', line.from.y);
+		node.setAttribute('x2', line.to.x);
+		node.setAttribute('y2', line.to.y);
+		node.setAttribute('style', 'stroke:rgb(99,99,99);stroke-width:2');
+		return node;
+	}
+}
+
+$(document).ready(function() {
+	$.getJSON('outputs/celiang.json', function(data) {
+		handleData(data);
+	});
+});
+
+function handleData(data) {
+	lines = data;
+	initFields();
+	drawLines();
+}
+
+function initFields() {
+	for (var i = 0; i < lines.length; i++) {
+		var _line = lines[i];
+		var $fieldRow = $(tpl['line-field']);
+		$fieldRow.data('line', _line);
+		$fieldRow.find('.line-name').html(_line.from + '-' + _line.to);
+		$fieldRow.find('.line-angel').val(_line.angel);
+		$fieldRow.find('.line-angel').attr('value', _line.angel);
+		$fieldRow.find('.line-distance').val(_line.distance);
+		$fieldRow.find('.line-distance').attr('value', _line.distance);
+		$fieldRow.find('input').on('change', function() {
+			var $_fieldRow = $(this).parents('.line-field');
+			var _the_line = $_fieldRow.data('line');
+			_the_line.angel = parseFloat($_fieldRow.find('.line-angel').val());
+			_the_line.distance = parseFloat($_fieldRow.find('.line-distance').val());
+			drawLines();
+		})
+		$fieldRow.appendTo('#data-browser');
+	}
+}
+
+function drawLines() {
+	points = [];
+	for (var i = 0; i < lines.length; i++) {
+		var _p1 = lines[i].from;
+		var _p2 = lines[i].to;
+		if (!points.findProperty('name', _p1)) points.push({'name':_p1});
+		if (!points.findProperty('name', _p2)) points.push({'name':_p2});
+	}
+
+	for (var i = 0; i < lines.length; i++) {
+		var _line = lines[i];
+		var _to_p = points.findProperty('name', _line.to);
+		var _from_p = points.findProperty('name', _line.from);
+		if ((typeof _from_p.x !== "number") || (typeof _from_p.y !== "number")) {
+			_from_p.x = _from_p.y = 0;
+		}
+		var tAngel = (((360 - (_line.angel - 90)) % 360) / 360) * 2 * Math.PI;
+		console.log(tAngel);
+		var offsetX = _line.distance * Math.cos(tAngel);
+		var offsetY = _line.distance * Math.sin(tAngel);
+		_to_p.x = _from_p.x + offsetX;
+		_to_p.y = _from_p.y + offsetY;
+		_from_p.next = _to_p;
+	}
+
+	$('#mysvg').html('');
+	for (var i = 0; i < lines.length; i++) {
+		var tLine = $.extend({}, lines[i]);
+		tLine.from = pointTransform(points.findProperty('name', tLine.from));
+		tLine.to = pointTransform(points.findProperty('name', tLine.to));
+		document.getElementById('mysvg').appendChild(svgUtils.createLine(tLine));
+	}
+	for (var i = 0; i < points.length; i++) {
+		var tPoint = pointTransform(points[i]);
+		document.getElementById('mysvg').appendChild(svgUtils.createPoint(tPoint));
+	}
+}
+</script>
+</html>
