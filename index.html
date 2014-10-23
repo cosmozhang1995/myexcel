@@ -70,17 +70,17 @@ Array.prototype.findProperty = function(key, val) {
 }
 
 var MUTIPLIER = 40;
-var OFFSET = {x: 500, y:200};
+var OFFSET = {x: 500, y:600};
 function pointTransform(point) {
 	return $.extend({}, point, {
 			x: point.x * MUTIPLIER + OFFSET.x,
-			y: point.y * MUTIPLIER + OFFSET.y
+			y: - point.y * MUTIPLIER + OFFSET.y
 		});
 }
 function pointDetransform(point) {
 	return $.extend({}, point, {
 			x: (point.x - OFFSET.x) / MUTIPLIER,
-			y: (point.y - OFFSET.y) / MUTIPLIER
+			y: - (point.y - OFFSET.y) / MUTIPLIER
 		});
 }
 
@@ -115,6 +115,26 @@ var svgUtils = {
 		node.setAttribute('y2', line.to.y);
 		node.setAttribute('style', 'stroke:rgb(99,99,99);stroke-width:2');
 		return node;
+	},
+	createAxisX: function() {
+		var axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		axis.setAttribute('id', 'line-axis-x');
+		axis.setAttribute('x1', 0);
+		axis.setAttribute('y1', OFFSET.y);
+		axis.setAttribute('x2', 1000);
+		axis.setAttribute('y2', OFFSET.y);
+		axis.setAttribute('style', 'stroke:rgb(128,128,255);stroke-width:1');
+		return axis;
+	},
+	createAxisY: function() {
+		var axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+		axis.setAttribute('id', 'line-axis-y');
+		axis.setAttribute('x1', OFFSET.x);
+		axis.setAttribute('y1', 0);
+		axis.setAttribute('x2', OFFSET.x);
+		axis.setAttribute('y2', 1000);
+		axis.setAttribute('style', 'stroke:rgb(128,128,255);stroke-width:1');
+		return axis;
 	}
 }
 
@@ -177,6 +197,8 @@ function drawLines() {
 	}
 
 	$('#mysvg').children().remove();
+	document.getElementById('mysvg').appendChild(svgUtils.createAxisX());
+	document.getElementById('mysvg').appendChild(svgUtils.createAxisY());
 	for (var i = 0; i < lines.length; i++) {
 		var tLine = $.extend({}, lines[i]);
 		tLine.from = pointTransform(points.findProperty('name', tLine.from));
