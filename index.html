@@ -176,7 +176,7 @@ function drawLines() {
 		_from_p.next = _to_p;
 	}
 
-	$('#mysvg').html('');
+	$('#mysvg').children().remove();
 	for (var i = 0; i < lines.length; i++) {
 		var tLine = $.extend({}, lines[i]);
 		tLine.from = pointTransform(points.findProperty('name', tLine.from));
