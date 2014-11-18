@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>What's X,Y,Z</title>
+</head>
+<style type="text/css">
+</style>
+<body>
+	<p>
+		<input id="cx1" class="coefficient"/>&nbsp;x&nbsp;+&nbsp;
+		<input id="cy1" class="coefficient"/>&nbsp;y&nbsp;+&nbsp;
+		<input id="cz1" class="coefficient"/>&nbsp;z&nbsp;=&nbsp;
+		<input id="cc1" class="coefficient"/>
+	</p>
+	<p>
+		<input id="cx2" class="coefficient"/>&nbsp;x&nbsp;+&nbsp;
+		<input id="cy2" class="coefficient"/>&nbsp;y&nbsp;+&nbsp;
+		<input id="cz2" class="coefficient"/>&nbsp;z&nbsp;=&nbsp;
+		<input id="cc2" class="coefficient"/>
+	</p>
+	<p>
+		<input id="cx3" class="coefficient"/>&nbsp;x&nbsp;+&nbsp;
+		<input id="cy3" class="coefficient"/>&nbsp;y&nbsp;+&nbsp;
+		<input id="cz3" class="coefficient"/>&nbsp;z&nbsp;=&nbsp;
+		<input id="cc3" class="coefficient"/>
+	</p>
+	<p>
+		<button id="calculate" onclick="calculate">Calculate</button>
+	</p>
+	<p>
+		x&nbsp;=&nbsp;<span id="rx"></span><br/>
+		y&nbsp;=&nbsp;<span id="ry"></span><br/>
+		z&nbsp;=&nbsp;<span id="rz"></span>
+	</p>
+</body>
+<script type="text/javascript">
+function calculate () {
+	cx1 = parseFloat(document.getElementById('cx1').value);
+	cy1 = parseFloat(document.getElementById('cy1').value);
+	cz1 = parseFloat(document.getElementById('cz1').value);
+	cc1 = parseFloat(document.getElementById('cc1').value);
+	cx2 = parseFloat(document.getElementById('cx2').value);
+	cy2 = parseFloat(document.getElementById('cy2').value);
+	cz2 = parseFloat(document.getElementById('cz2').value);
+	cc2 = parseFloat(document.getElementById('cc2').value);
+	cx3 = parseFloat(document.getElementById('cx3').value);
+	cy3 = parseFloat(document.getElementById('cy3').value);
+	cz3 = parseFloat(document.getElementById('cz3').value);
+	cc3 = parseFloat(document.getElementById('cc3').value);
+
+	dc = [
+		[cx1, cy1, cz1],
+		[cx2, cy2, cz2],
+		[cx3, cy3, cz3]
+	];
+	dx = [
+		[cc1, cy1, cz1],
+		[cc2, cy2, cz2],
+		[cc3, cy3, cz3]
+	];
+	dy = [
+		[cx1, cc1, cz1],
+		[cx2, cc2, cz2],
+		[cx3, cc3, cz3]
+	];
+	dz = [
+		[cx1, cy1, cc1],
+		[cx2, cy2, cc2],
+		[cx3, cy3, cc3]
+	];
+
+	cdc = det3(dc);
+	cdx = det3(dx);
+	cdy = det3(dy);
+	cdz = det3(dz);
+
+	x = cdx/cdc;
+	y = cdy/cdc;
+	z = cdz/cdc;
+
+	document.getElementById('rx').innerHTML = x;
+	document.getElementById('ry').innerHTML = y;
+	document.getElementById('rz').innerHTML = z;
+}
+
+function det(arr) {
+	var ret = 0;
+	for (var i = 0; i < arr.length; i++) {
+		var p = 1;
+	}
+}
+
+function det3(arr) {
+	return 0
+		+ arr[0][0] * arr[1][1] * arr[2][2]
+		+ arr[0][1] * arr[1][2] * arr[2][0]
+		+ arr[0][2] * arr[1][0] * arr[2][1]
+		- arr[0][1] * arr[1][0] * arr[2][2]
+		- arr[0][2] * arr[1][1] * arr[2][0]
+		- arr[0][0] * arr[1][2] * arr[2][1];
+}
+
+document.getElementById('calculate').onclick = function(){calculate()};
+</script>
+</html>
