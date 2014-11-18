@@ -222,5 +222,14 @@ function drawLines() {
 
 	$('#error-value').html(Math.pow(Math.pow(points[0].x - points[points.length-1].x, 2) + Math.pow(points[0].y - points[points.length-1].y, 2), 0.5));
 }
+
+function cadScript() {
+	var _script = "LINE";
+	for (var i = 0; i < points.length; i++) {
+		_script += " " + points[i].x + "," + points[i].y;
+	}
+	_script += " " + points[0].x + "," + points[0].y;
+	return _script;
+}
 </script>
 </html>
